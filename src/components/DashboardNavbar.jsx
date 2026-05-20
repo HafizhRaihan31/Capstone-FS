@@ -1,19 +1,78 @@
+import { Link, useLocation } from "react-router-dom";
+import { getProfile } from "../services/userService";
+import { useEffect, useState } from "react";
+
 export default function DashboardNavbar({ setOpen }) {
+  const [profile, setProfile] = useState(null);
+  const location = useLocation();
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await getProfile();
+        setProfile(response.data.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchProfile();
+  }, []);
+
+  // Mengambil inisial nama untuk avatar (Contoh: "John Doe" -> "JD")
+  const getInitial = (name) => {
+    if (!name) return "?";
+    return name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
+  };
+
+  // Helper untuk mendeteksi menu yang sedang aktif
+  const isActive = (path) => location.pathname === path;
+
   return (
-    <div className="bg-green-600 text-white px-6 py-3 flex justify-between items-center">
+    <nav className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-3.5 shadow-md flex justify-between items-center sticky top-0 z-50 modern-navbar animate-fade-in">
+      {/* Hamburger Button untuk Mobile */}
       <button
-        className="md:hidden"
+        className="md:hidden p-2 -ml-2 rounded-lg hover:bg-green-700/50 transition-colors focus:outline-none focus:ring-2 focus:ring-green-300"
         onClick={() => setOpen(true)}
+        aria-label="Open menu"
       >
-        ☰
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+        </svg>
       </button>
 
-      <div className="hidden md:flex gap-6">
-        <span>Scan Sampah</span>
-        <span>Tukar Poin</span>
+      {/* Navigation Links (Desktop) */}
+      <div className="hidden md:flex items-center gap-2">
+        <Link 
+          to="/scan" 
+          className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
+            isActive("/scan") 
+              ? "bg-white text-green-700 shadow-sm" 
+              : "hover:bg-white/10 hover:text-white text-green-50"
+          }`}
+        >
+          Scan Sampah
+        </Link>
+        <Link 
+          to="/reward" 
+          className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
+            isActive("/reward") 
+              ? "bg-white text-green-700 shadow-sm" 
+              : "hover:bg-white/10 hover:text-white text-green-50"
+          }`}
+        >
+          Tukar Poin
+        </Link>
       </div>
 
-      <span>Hafizh</span>
-    </div>
+      {/* Profile Section */}
+      <div className="flex items-center gap-3 bg-white/10 pl-4 pr-2 py-1.5 rounded-full backdrop-blur-sm border border-white/10">
+        <span className="text-sm font-medium tracking-wide hidden sm:inline-block">
+          {profile?.full_name || "Loading..."}
+        </span>
+        <div className="w-8 h-8 rounded-full bg-white text-green-700 font-bold text-xs flex items-center justify-center shadow-sm select-none border border-green-100">
+          {getInitial(profile?.full_name)}
+        </div>
+      </div>
+    </nav>
   );
 }

@@ -1,140 +1,455 @@
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import {
+  Link,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
+
+import {
+  LayoutDashboard,
+  ScanLine,
+  Gift,
+  History,
+  User,
+  LogOut,
+  ClipboardList,
+  Recycle,
+  Users,
+} from "lucide-react";
+
+import { useEffect, useState } from "react";
+
+import { getProfile } from "../services/userService";
 
 export default function Sidebar({ open, setOpen }) {
+
   const { pathname } = useLocation();
+
   const navigate = useNavigate();
 
-  // dummy user
-  // command:
-  // nanti data user ambil dari backend:
-  // GET /api/profile
-  const user = {
-    name: "Hafizh Raihan",
-    role: "User",
-    image: "/src/assets/img/profile.png",
-  };
+  // USER STATE
+  const [user, setUser] = useState(null);
 
+  // LOGOUT MODAL
+  const [showLogoutModal, setShowLogoutModal] =
+    useState(false);
+
+  // FETCH PROFILE
+  useEffect(() => {
+
+    const fetchProfile = async () => {
+
+      try {
+
+        const response =
+          await getProfile();
+
+        console.log(response.data);
+
+        setUser(
+          response.data.data
+        );
+
+      } catch (error) {
+
+        console.error(error);
+      }
+    };
+
+    fetchProfile();
+
+  }, []);
+
+
+  // ==========================================
+  // HANDLE LOGOUT
+  // ==========================================
   const handleLogout = () => {
-    // command:
-    // hapus token auth JWT dari localStorage/cookies
 
+    // HAPUS TOKEN
     localStorage.removeItem("token");
 
-    // command:
-    // endpoint backend logout:
-    // POST /api/logout
+    // TUTUP MODAL
+    setShowLogoutModal(false);
 
+    // REDIRECT
     navigate("/");
   };
 
-  const Item = ({ to, children }) => (
+
+  // ==========================================
+  // SIDEBAR ITEM
+  // ==========================================
+  const Item = ({
+    to,
+    icon,
+    children,
+  }) => (
+
     <Link
       to={to}
       onClick={() => setOpen(false)}
-      className={`block px-3 py-2 rounded-xl transition ${
+      className={`flex items-center gap-3 px-3 py-3 rounded-xl transition ${
         pathname === to
           ? "bg-green-600 text-white"
           : "hover:bg-green-700 text-white/90"
       }`}
     >
-      {children}
+
+      {icon}
+
+      <span>{children}</span>
+
     </Link>
   );
+
 
   return (
     <>
       {/* OVERLAY MOBILE */}
       {open && (
+
         <div
-          className="fixed inset-0 bg-black/50 z-40 md:hidden"
-          onClick={() => setOpen(false)}
+          className="
+            fixed
+            inset-0
+            bg-black/50
+            z-40
+            md:hidden
+          "
+          onClick={() =>
+            setOpen(false)
+          }
         />
       )}
+
 
       {/* SIDEBAR */}
       <div
         className={`fixed top-0 left-0 z-50 h-full w-64 bg-green-900 text-white p-5 transform transition-transform duration-300 flex flex-col
-        ${open ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}
+        ${
+          open
+            ? "translate-x-0"
+            : "-translate-x-full md:translate-x-0"
+        }`}
       >
-        {/* LOGO */}
+
+        {/* TOP SECTION */}
         <div>
-          <h1 className="text-2xl font-bold mb-8">
+
+          {/* LOGO */}
+          <h1 className="
+            text-2xl
+            font-bold
+            mb-8
+          ">
             Sortir.in
           </h1>
+
 
           {/* MENU */}
           <div className="space-y-2">
 
-            {/* MAIN */}
+            {/* ==========================================
+            MAIN
+            ========================================== */}
             <div>
-              <p className="text-sm opacity-70 mb-2">
+
+              <p className="
+                text-sm
+                opacity-70
+                mb-2
+              ">
                 Main
               </p>
 
-              <Item to="/dashboard">
+              <Item
+                to="/dashboard"
+                icon={
+                  <LayoutDashboard size={18} />
+                }
+              >
                 Dashboard
               </Item>
 
-              <Item to="/scan">
+              <Item
+                to="/scan"
+                icon={
+                  <ScanLine size={18} />
+                }
+              >
                 Scan Sampah
               </Item>
 
-              <Item to="/reward">
+              <Item
+                to="/reward"
+                icon={
+                  <Gift size={18} />
+                }
+              >
                 Tukar Poin
               </Item>
 
-              <Item to="/history">
+              <Item
+                to="/history"
+                icon={
+                  <History size={18} />
+                }
+              >
                 Riwayat Scan
               </Item>
             </div>
 
-            {/* ACCOUNT */}
+
+            {/* ==========================================
+            ADMIN MENU
+            ========================================== */}
+            {user?.role === "admin" && (
+
+              <div className="pt-6">
+
+                <p className="
+                  text-sm
+                  opacity-70
+                  mb-2
+                ">
+                  Admin
+                </p>
+
+
+                {/* LOG REWARD */}
+                <Item
+                  to="/admin/reward-logs"
+                  icon={
+                    <ClipboardList size={18} />
+                  }
+                >
+                  Log Reward
+                </Item>
+
+
+                {/* LOG SAMPAH */}
+                <Item
+                  to="/admin/trash-logs"
+                  icon={
+                    <Recycle size={18} />
+                  }
+                >
+                  Log Sampah
+                </Item>
+
+
+                {/* USERS */}
+                <Item
+                  to="/admin/users"
+                  icon={
+                    <Users size={18} />
+                  }
+                >
+                  Kelola User
+                </Item>
+
+              </div>
+            )}
+
+
+            {/* ==========================================
+            ACCOUNT
+            ========================================== */}
             <div className="pt-6">
-              <p className="text-sm opacity-70 mb-2">
+
+              <p className="
+                text-sm
+                opacity-70
+                mb-2
+              ">
                 Account
               </p>
 
-              <Item to="/profile">
+              <Item
+                to="/profile"
+                icon={
+                  <User size={18} />
+                }
+              >
                 Ubah Profil
               </Item>
+
             </div>
           </div>
         </div>
 
-        {/* USER SECTION */}
-        <div className="mt-auto pt-6 border-t border-white/20">
+
+        {/* ==========================================
+        BOTTOM SECTION
+        ========================================== */}
+        <div className="
+          mt-auto
+          pt-6
+          border-t
+          border-white/20
+        ">
 
           {/* USER INFO */}
-          <div className="flex items-center gap-3 mb-4">
+          <div className="
+            flex
+            items-center
+            gap-3
+            mb-4
+          ">
 
-            {/* PROFILE IMAGE */}
-            <img
-              src={user.image}
-              alt="Profile"
-              className="w-12 h-12 rounded-full object-cover border-2 border-green-300"
-            />
 
             {/* USER TEXT */}
             <div>
-              <p className="font-semibold text-sm">
-                {user.name}
+
+              {/* USER NAME */}
+              <p className="
+                font-semibold
+                text-sm
+              ">
+                {user?.full_name ||
+                  "Loading..."}
               </p>
 
-              <p className="text-xs text-white/70">
-                {user.role}
+
+              {/* USER ROLE */}
+              <p className="
+                text-xs
+                text-white/70
+              ">
+
+                {
+                  user?.role
+                    ? user.role
+                        .charAt(0)
+                        .toUpperCase() +
+                      user.role.slice(1)
+                    : "User"
+                }
+
               </p>
             </div>
           </div>
 
+
           {/* LOGOUT BUTTON */}
           <button
-            onClick={handleLogout}
-            className="w-full bg-red-500 hover:bg-red-600 transition py-2 rounded-xl font-medium"
+            onClick={() =>
+              setShowLogoutModal(true)
+            }
+            className="
+              w-full
+              flex
+              items-center
+              justify-center
+              gap-2
+              bg-red-500
+              hover:bg-red-600
+              transition
+              py-3
+              rounded-xl
+              font-medium
+            "
           >
+
+            <LogOut size={18} />
+
             Logout
+
           </button>
         </div>
       </div>
+
+
+      {/* ==========================================
+      LOGOUT MODAL
+      ========================================== */}
+      {showLogoutModal && (
+
+        <div className="
+          fixed
+          inset-0
+          bg-black/50
+          flex
+          items-center
+          justify-center
+          z-[100]
+        ">
+
+          <div className="
+            bg-white
+            rounded-2xl
+            p-6
+            w-[90%]
+            max-w-sm
+            shadow-2xl
+          ">
+
+            {/* TITLE */}
+            <h2 className="
+              text-xl
+              font-bold
+              text-gray-800
+              mb-2
+            ">
+              Logout
+            </h2>
+
+
+            {/* TEXT */}
+            <p className="
+              text-gray-600
+              mb-6
+            ">
+              Apakah Anda yakin ingin logout?
+            </p>
+
+
+            {/* BUTTONS */}
+            <div className="
+              flex
+              justify-end
+              gap-3
+            ">
+
+              {/* CANCEL */}
+              <button
+                onClick={() =>
+                  setShowLogoutModal(false)
+                }
+                className="
+                  px-4
+                  py-2
+                  rounded-xl
+                  border
+                  border-gray-300
+                  hover:bg-gray-100
+                  transition
+                "
+              >
+                Batal
+              </button>
+
+
+              {/* LOGOUT */}
+              <button
+                onClick={handleLogout}
+                className="
+                  px-4
+                  py-2
+                  rounded-xl
+                  bg-red-500
+                  hover:bg-red-600
+                  text-white
+                  transition
+                "
+              >
+                Logout
+              </button>
+
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

@@ -1,58 +1,84 @@
 import Navbar from "../components/Navbar";
+import { Link } from "react-router-dom";
 
 export default function Landing() {
   return (
     <>
       <Navbar />
 
-      {/* HERO */}
-      <section id="home" className="min-h-screen flex items-center">
-        <div className="max-w-6xl mx-auto px-4 flex flex-col md:flex-row items-center">
-          <div className="flex-1">
-            <h1 className="text-3xl font-bold text-green-900">
-              Scan Sampah, Dapatkan Reward
+      {/* HERO SECTION */}
+      <section id="home" className="flex min-h-screen items-center bg-green-50/30">
+        <div className="mx-auto flex max-w-6xl flex-col items-center px-4 md:flex-row gap-8">
+          
+          {/* Teks & CTA */}
+          <div className="flex-1 text-center md:text-left">
+            <h1 className="text-3xl font-extrabold text-green-900 sm:text-4xl lg:text-5xl tracking-tight">
+              Scan Sampah, <br className="hidden sm:inline" />
+              Dapatkan Reward
             </h1>
-            <p className="mt-4 text-green-800">
-              Yuk mulai pilah sampah sekarang
+            <p className="mt-4 text-base text-green-800 sm:text-lg">
+              Yuk mulai pilah sampah sekarang dan tukarkan dengan hadiah menarik.
             </p>
-
-            <button className="mt-4 bg-green-500 px-6 py-2 text-white rounded-lg">
-              Mulai Scan / Login
-            </button>
+            <Link
+              to="/login"
+              className="mt-6 inline-block rounded-xl bg-green-600 px-8 py-3 font-semibold text-white transition-all duration-200 hover:bg-green-700 hover:shadow-md active:scale-95"
+            >
+              Login Sekarang
+            </Link>
           </div>
 
-          <img
-            src="/src/assets/img/hero.png"
-            className="w-80 mt-6 md:mt-0"
-          />
+          {/* Gambar Hero */}
+          <div className="mt-6 flex flex-1 justify-center md:mt-0">
+            <img
+              src="/src/assets/img/hero.png"
+              alt="Ilustrasi Scan Sampah untuk Mendapat Reward"
+              className="w-72 sm:w-80 lg:w-[400px] object-contain drop-shadow-sm"
+            />
+          </div>
         </div>
       </section>
 
-      {/* ABOUT */}
-      <section id="about" className="py-20 text-center">
-        <div className="max-w-3xl mx-auto px-4">
-          <h1 className="text-2xl font-bold text-green-900">
-            Tentang Kami
-          </h1>
-          <p className="mt-6 text-green-800">
-            Platform untuk memilah sampah dan mendapatkan reward.
+      {/* ABOUT SECTION */}
+      <section id="about" className="py-24 bg-white">
+        <div className="max-w-3xl mx-auto px-4 text-center">
+          <h2 className="text-2xl font-bold text-green-900 sm:text-3xl">Tentang Kami</h2>
+          <div className="w-12 h-1 bg-green-500 mx-auto mt-3 rounded-full"></div>
+          <p className="mt-6 text-green-800 text-base sm:text-lg leading-relaxed">
+            Kami adalah platform digital yang berkomitmen membantu Anda mengelola dan memilah sampah rumah tangga dengan lebih mudah. Ubah kepedulian lingkungan Anda menjadi poin berharga yang bisa ditukarkan dengan berbagai reward menarik.
           </p>
         </div>
       </section>
 
-      {/* REWARD */}
-      <section id="reward" className="py-20 text-center">
+      {/* REWARD SECTION */}
+      <section id="reward" className="py-24 bg-green-50/20">
         <div className="max-w-6xl mx-auto px-4">
-          <h1 className="text-2xl font-bold text-green-900 mb-8">
-            Tukar Poin
-          </h1>
+          <div className="text-center mb-12">
+            <h2 className="text-2xl font-bold text-green-900 sm:text-3xl">Tukar Poin</h2>
+            <div className="w-12 h-1 bg-green-500 mx-auto mt-3 rounded-full"></div>
+          </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-white rounded-xl shadow p-4">
-                <img src="/src/assets/img/product.png" className="rounded" />
-                <p className="mt-2 font-semibold">Produk {i}</p>
-                <p>40 Poin</p>
+              <div 
+                key={i} 
+                className="group bg-white rounded-2xl shadow-sm hover:shadow-md border border-gray-100 p-4 transition-all duration-300 hover:-translate-y-1"
+              >
+                <div className="overflow-hidden rounded-xl bg-gray-50 aspect-video flex items-center justify-center">
+                  <img 
+                    src="/src/assets/img/product.png" 
+                    alt={`Gambar Produk Reward ${i}`}
+                    className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300" 
+                  />
+                </div>
+                <div className="mt-4">
+                  <h3 className="font-semibold text-gray-900 text-lg">Produk Reward {i}</h3>
+                  <div className="mt-1 flex items-center justify-between">
+                    <span className="text-sm text-gray-500">Tersedia</span>
+                    <span className="font-bold text-green-600 bg-green-50 px-2.5 py-1 rounded-lg text-sm">
+                      40 Poin
+                    </span>
+                  </div>
+                </div>
               </div>
             ))}
           </div>

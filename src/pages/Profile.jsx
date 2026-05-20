@@ -1,154 +1,257 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
 import DashboardLayout from "../layouts/DashboardLayout";
 
+import {
+  getProfile,
+  updateProfile,
+} from "../services/profileService";
+
 export default function Profile() {
-  const [preview, setPreview] = useState("/src/assets/img/profile.png");
 
-  const handleImage = (e) => {
-    const file = e.target.files[0];
+  // ==========================================
+  // STATE
+  const [formData, setFormData] =
+    useState({
+      full_name: "",
+      email: "",
 
-    if (file) {
-      setPreview(URL.createObjectURL(file));
-    }
+      current_password: "",
+      new_password: "",
+      confirm_password: "",
+    });
 
-    // command:
-    // nanti image ini dikirim ke backend:
-    // POST /api/upload-profile
+  const [loading, setLoading] =
+    useState(false);
+
+  const [success, setSuccess] =
+    useState("");
+
+  const [error, setError] =
+    useState("");
+
+  // FETCH PROFILE
+  useEffect(() => {
+
+    const fetchProfile = async () => {
+      try {
+
+        const response =
+          await getProfile();
+
+        setFormData((prev) => ({
+          ...prev,
+
+          full_name:
+            response.data.data.full_name,
+
+          email:
+            response.data.data.email,
+        }));
+
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchProfile();
+
+  }, []);
+
+  // HANDLE CHANGE
+  const handleChange = (e) => {
+
+    setFormData({
+      ...formData,
+      [e.target.name]:
+        e.target.value,
+    });
   };
 
-  const handleSubmit = (e) => {
+  // HANDLE SUBMIT
+  const handleSubmit = async (e) => {
+
     e.preventDefault();
 
-    // command:
-    // endpoint update profile:
-    // PUT /api/profile
+    try {
 
-    alert("Profile berhasil diperbarui!");
+      setLoading(true);
+
+      setSuccess("");
+      setError("");
+
+      const response =
+        await updateProfile(formData);
+
+      setSuccess(
+        response.data.message
+      );
+
+      // RESET PASSWORD FIELD
+      setFormData((prev) => ({
+        ...prev,
+
+        current_password: "",
+        new_password: "",
+        confirm_password: "",
+      }));
+
+    } catch (error) {
+
+      console.error(error);
+
+      setError(
+        error.response?.data?.message ||
+        "Update profile gagal"
+      );
+
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <DashboardLayout>
-      <div className="p-6">
-        <div className="max-w-3xl mx-auto">
-          {/* HEADER */}
-          <div className="mb-8">
-            <h1 className="text-2xl font-bold text-green-900">Ubah Profile</h1>
 
-            <p className="text-green-700 mt-2">Kelola informasi akun kamu</p>
+      <div className="p-6">
+
+        <div className="max-w-2xl mx-auto bg-white p-8 rounded-2xl shadow">
+
+          {/* TITLE */}
+          <div className="mb-8">
+
+            <h1 className="text-2xl font-bold text-green-900">
+              Profile Saya
+            </h1>
+
+            <p className="text-green-700 mt-2">
+              Kelola informasi akun anda
+            </p>
           </div>
 
-          {/* CARD */}
-          <div className="bg-white rounded-2xl shadow p-6">
-            {/* PROFILE IMAGE */}
-            <div className="flex flex-col items-center mb-8">
-              <img
-                src={preview}
-                alt="Profile"
-                className="w-28 h-28 rounded-full object-cover border-4 border-green-200"
-              />
+          {/* SUCCESS */}
+          {success && (
+            <div className="mb-4 bg-green-100 border border-green-300 text-green-700 px-4 py-3 rounded-xl">
+              {success}
+            </div>
+          )}
 
-              <label className="mt-4">
-                <span className="cursor-pointer bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-xl transition">
-                  Upload Foto
-                </span>
+          {/* ERROR */}
+          {error && (
+            <div className="mb-4 bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded-xl">
+              {error}
+            </div>
+          )}
 
-                <input
-                  type="file"
-                  className="hidden"
-                  accept="image/*"
-                  onChange={handleImage}
-                />
+          {/* FORM */}
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-5"
+          >
+
+            {/* NAME */}
+            <div>
+
+              <label className="block text-sm text-green-900 mb-2">
+                Nama Lengkap
               </label>
+
+              <input
+                type="text"
+                name="full_name"
+                value={formData.full_name}
+                onChange={handleChange}
+                className="w-full border border-green-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-400"
+              />
             </div>
 
-            {/* FORM */}
-            <form onSubmit={handleSubmit} className="space-y-5">
-              {/* NAMA */}
-              <div>
+            {/* EMAIL */}
+            <div>
+
+              <label className="block text-sm text-green-900 mb-2">
+                Email
+              </label>
+
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                className="w-full border border-green-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-400"
+              />
+            </div>
+
+            {/* PASSWORD SECTION */}
+            <div className="pt-4 border-t">
+
+              <h2 className="text-lg font-semibold text-green-900 mb-4">
+                Ubah Password
+              </h2>
+
+              {/* CURRENT PASSWORD */}
+              <div className="mb-4">
+
                 <label className="block text-sm text-green-900 mb-2">
-                  Nama Lengkap
+                  Password Lama
                 </label>
 
                 <input
-                  type="text"
-                  defaultValue="Hafizh Raihan"
+                  type="password"
+                  name="current_password"
+                  value={formData.current_password}
+                  onChange={handleChange}
+                  placeholder="Kosongkan jika tidak ingin mengganti password"
                   className="w-full border border-green-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-400"
                 />
               </div>
 
-              {/* EMAIL */}
-              <div>
-                <label className="block text-sm text-green-900 mb-2">
-                  Email
-                </label>
+              {/* NEW PASSWORD */}
+              <div className="mb-4">
 
-                <input
-                  type="email"
-                  defaultValue="hafizh@example.com"
-                  className="w-full border border-green-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-400"
-                />
-              </div>
-
-              {/* NOMOR HP */}
-              <div>
-                <label className="block text-sm text-green-900 mb-2">
-                  Nomor HP
-                </label>
-
-                <input
-                  type="text"
-                  defaultValue="08123456789"
-                  className="w-full border border-green-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-400"
-                />
-              </div>
-
-              {/* PASSWORD BARU */}
-              <div>
                 <label className="block text-sm text-green-900 mb-2">
                   Password Baru
                 </label>
 
                 <input
                   type="password"
-                  placeholder="Masukkan password baru"
+                  name="new_password"
+                  value={formData.new_password}
+                  onChange={handleChange}
                   className="w-full border border-green-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-400"
                 />
-
-                {/* command:
-    endpoint backend:
-    PUT /api/change-password
-  */}
               </div>
 
-              {/* KONFIRMASI PASSWORD */}
+              {/* CONFIRM PASSWORD */}
               <div>
+
                 <label className="block text-sm text-green-900 mb-2">
                   Konfirmasi Password
                 </label>
 
                 <input
                   type="password"
-                  placeholder="Konfirmasi password baru"
+                  name="confirm_password"
+                  value={formData.confirm_password}
+                  onChange={handleChange}
                   className="w-full border border-green-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-400"
                 />
-
-                {/* command:
-                validasi frontend:
-                password === confirmPassword
-
-                validasi backend juga WAJIB
-                */}
               </div>
+            </div>
 
-              {/* BUTTON */}
-              <button
-                type="submit"
-                className="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl font-semibold transition"
-              >
-                Simpan Perubahan
-              </button>
-            </form>
-          </div>
+            {/* BUTTON */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-green-500 hover:bg-green-600 transition text-white py-3 rounded-xl font-semibold"
+            >
+
+              {loading
+                ? "Loading..."
+                : "Update Profile"}
+
+            </button>
+
+          </form>
         </div>
       </div>
     </DashboardLayout>

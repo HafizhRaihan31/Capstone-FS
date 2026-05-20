@@ -1,6 +1,7 @@
 import { useState } from "react";
 import DashboardLayout from "../layouts/DashboardLayout";
-import { scanImage, saveScan } from "../services/api";
+import { saveScan } from "../services/scanService";
+import { scanImage } from "../services/scanService";
 
 export default function Scan() {
   const [file, setFile] = useState(null);
@@ -17,9 +18,6 @@ export default function Scan() {
     setPreview(URL.createObjectURL(selectedFile));
     setResult(null);
 
-    // command:
-    // nanti validasi image type dan size
-    // backend validation juga WAJIB
   };
 
   const handleScan = async () => {
@@ -29,10 +27,6 @@ export default function Scan() {
 
     try {
       const res = await scanImage(file);
-
-      // command:
-      // endpoint backend AI:
-      // POST /api/scan
 
       const data = await res.json();
 

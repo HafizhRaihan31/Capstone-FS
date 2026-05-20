@@ -1,98 +1,173 @@
+import { useEffect, useState } from "react";
+
 import DashboardLayout from "../layouts/DashboardLayout";
 
+import {
+  getHistory,
+} from "../services/historyService";
+
 export default function History() {
-  const historyData = [
-    {
-      id: 1,
-      date: "13 Maret 2026",
-      waste: "Botol Plastik",
-      points: 15,
-      status: "Berhasil",
-    },
-    {
-      id: 2,
-      date: "15 Februari 2026",
-      waste: "Kardus",
-      points: 10,
-      status: "Berhasil",
-    },
-    {
-      id: 3,
-      date: "17 Januari 2026",
-      waste: "Kaleng",
-      points: 12,
-      status: "Pending",
-    },
-  ];
+
+  // STATE
+  const [history, setHistory] =
+    useState([]);
+
+  const [loading, setLoading] =
+    useState(true);
+
+  // FETCH HISTORY
+  useEffect(() => {
+
+    const fetchHistory = async () => {
+      try {
+
+        const response =
+          await getHistory();
+
+        console.log(response.data);
+
+        setHistory(response.data.data);
+
+      } catch (error) {
+        console.error(error);
+
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchHistory();
+
+  }, []);
 
   return (
     <DashboardLayout>
+
       <div className="p-6">
-        <div className="max-w-6xl mx-auto">
+
+        <div className="max-w-5xl mx-auto">
 
           {/* HEADER */}
           <div className="mb-6">
+
             <h1 className="text-2xl font-bold text-green-900">
-              Riwayat Scan
+              Riwayat Poin
             </h1>
 
             <p className="text-green-700 mt-2">
-              Semua aktivitas scan sampah kamu
+              Semua aktivitas scan sampah anda
             </p>
           </div>
 
-          {/* TABLE */}
+          {/* CARD */}
           <div className="bg-white rounded-2xl shadow overflow-hidden">
 
-            {/* responsive */}
+            {/* TABLE */}
             <div className="overflow-x-auto">
 
-              <table className="w-full text-left">
-                <thead className="bg-green-100 text-green-900">
+              <table className="w-full">
+
+                <thead className="bg-green-50">
+
                   <tr>
-                    <th className="p-4">Tanggal</th>
-                    <th className="p-4">Jenis Sampah</th>
-                    <th className="p-4">Poin</th>
-                    <th className="p-4">Status</th>
+
+                    <th className="text-left p-4 text-green-900">
+                      Kategori
+                    </th>
+
+                    <th className="text-left p-4 text-green-900">
+                      Berat
+                    </th>
+
+                    <th className="text-left p-4 text-green-900">
+                      Poin
+                    </th>
+
+                    <th className="text-left p-4 text-green-900">
+                      Status
+                    </th>
+
+                    <th className="text-left p-4 text-green-900">
+                      Tanggal
+                    </th>
+
                   </tr>
                 </thead>
 
                 <tbody>
-                  {historyData.map((item) => (
-                    <tr
-                      key={item.id}
-                      className="border-t hover:bg-green-50 transition"
-                    >
-                      <td className="p-4">{item.date}</td>
 
-                      <td className="p-4">
-                        {item.waste}
-                      </td>
+                  {loading ? (
 
-                      <td className="p-4 text-green-600 font-semibold">
-                        +{item.points}
-                      </td>
-
-                      <td className="p-4">
-                        <span
-                          className={`px-3 py-1 rounded-full text-sm ${
-                            item.status === "Berhasil"
-                              ? "bg-green-100 text-green-700"
-                              : "bg-yellow-100 text-yellow-700"
-                          }`}
-                        >
-                          {item.status}
-                        </span>
+                    <tr>
+                      <td
+                        colSpan="5"
+                        className="p-6 text-center"
+                      >
+                        Loading...
                       </td>
                     </tr>
-                  ))}
+
+                  ) : history.length > 0 ? (
+
+                    history.map((item) => (
+
+                      <tr
+                        key={item.id}
+                        className="border-t"
+                      >
+
+                        {/* KATEGORI */}
+                        <td className="p-4">
+                          Kategori #{item.kategori_id}
+                        </td>
+
+                        {/* BERAT */}
+                        <td className="p-4">
+                          {item.berat} Kg
+                        </td>
+
+                        {/* POIN */}
+                        <td className="p-4 text-green-600 font-semibold">
+                          +{item.poin_didapat}
+                        </td>
+
+                        {/* STATUS */}
+                        <td className="p-4">
+
+                          <span className="px-3 py-1 rounded-full text-sm bg-green-100 text-green-700">
+                            {item.status}
+                          </span>
+
+                        </td>
+
+                        {/* TANGGAL */}
+                        <td className="p-4 text-gray-500">
+                          {
+                            new Date(
+                              item.created_at
+                            ).toLocaleDateString(
+                              "id-ID"
+                            )
+                          }
+                        </td>
+                      </tr>
+                    ))
+
+                  ) : (
+
+                    <tr>
+                      <td
+                        colSpan="5"
+                        className="p-6 text-center text-gray-500"
+                      >
+                        Belum ada riwayat transaksi
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
-
               </table>
-
             </div>
           </div>
-
         </div>
       </div>
     </DashboardLayout>
