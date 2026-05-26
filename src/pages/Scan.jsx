@@ -1,6 +1,7 @@
 import { useState } from "react";
 import DashboardLayout from "../layouts/DashboardLayout";
 import { saveScan, scanImage } from "../services/scanService";
+import { getProfile } from "../services/userService";
 
 export default function Scan() {
   const [file, setFile] = useState(null);
@@ -33,17 +34,30 @@ export default function Scan() {
   };
 
   const handleSave = async () => {
-    try {
-      await saveScan({
-        klasifikasi_id: result.klasifikasi_id,
-        berat: parseFloat(berat),
-      });
-      alert("Data berhasil disimpan!");
-    } catch (error) {
-      console.error(error);
-      alert("Gagal menyimpan data");
-    }
-  };
+  try {
+    await saveScan({
+      klasifikasi_id: result.klasifikasi_id,
+      berat: parseFloat(berat),
+    });
+
+    // Fetch data user terbaru dari API
+    const userRes = await getProfile();
+    const updatedUser = userRes.data.data;
+
+    // Update localStorage
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+
+    // Trigger event supaya RewardPage & Sidebar re-fetch
+    window.dispatchEvent(new Event("userUpdated"));
+
+    alert(`Berhasil! +${Math.round(berat * result.poin_per_kg)} poin ditambahkan!`);
+    resetImage();
+
+  } catch (error) {
+    console.error(error);
+    alert("Gagal menyimpan data");
+  }
+};
 
   const resetImage = () => {
     setFile(null);
