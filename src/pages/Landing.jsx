@@ -1,6 +1,10 @@
 import Navbar from "../components/Navbar";
 import { Link } from "react-router-dom";
 
+import heroImg from "../assets/img/hero.png";
+import sampoImg from "../assets/img/sampo.jpg";
+import mieImg from "../assets/img/mie.jpg";
+import botolImg from "../assets/img/botol.jpg";
 export default function Landing() {
   return (
     <>
@@ -33,7 +37,7 @@ export default function Landing() {
           {/* Gambar Hero */}
           <div className="mt-6 flex flex-1 justify-center md:mt-0">
             <img
-              src="/src/assets/img/hero.png"
+              src={heroImg}
               alt="Ilustrasi Scan Sampah untuk Mendapat Reward"
               className="w-72 sm:w-80 lg:w-[400px] object-contain drop-shadow-sm"
             />
@@ -78,7 +82,7 @@ export default function Landing() {
             <div className="group bg-white rounded-2xl shadow-sm hover:shadow-md border border-gray-100 p-4 transition-all duration-300 hover:-translate-y-1">
               <div className="overflow-hidden rounded-xl bg-gray-50 aspect-video flex items-center justify-center">
                 <img
-                  src="/src/assets/img/sampo.jpg"
+                  src={sampoImg}
                   alt="Sampo Keramas"
                   className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
                 />
@@ -103,7 +107,7 @@ export default function Landing() {
             <div className="group bg-white rounded-2xl shadow-sm hover:shadow-md border border-gray-100 p-4 transition-all duration-300 hover:-translate-y-1">
               <div className="overflow-hidden rounded-xl bg-gray-50 aspect-video flex items-center justify-center">
                 <img
-                  src="/src/assets/img/mie.jpg"
+                  src={mieImg}
                   alt="Mie Instan"
                   className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
                 />
@@ -128,7 +132,7 @@ export default function Landing() {
             <div className="group bg-white rounded-2xl shadow-sm hover:shadow-md border border-gray-100 p-4 transition-all duration-300 hover:-translate-y-1">
               <div className="overflow-hidden rounded-xl bg-gray-50 aspect-video flex items-center justify-center">
                 <img
-                  src="/src/assets/img/botol.jpg"
+                  src={botolImg}
                   alt="Botol Minum"
                   className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
                 />
