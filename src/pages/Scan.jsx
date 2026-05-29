@@ -34,30 +34,31 @@ export default function Scan() {
   };
 
   const handleSave = async () => {
-  try {
-    await saveScan({
-      klasifikasi_id: result.klasifikasi_id,
-      berat: parseFloat(berat),
-    });
+    try {
+      await saveScan({
+        klasifikasi_id: result.klasifikasi_id,
+        berat: parseFloat(berat),
+      });
 
-    // Fetch data user terbaru dari API
-    const userRes = await getProfile();
-    const updatedUser = userRes.data.data;
+      // Fetch data user terbaru dari API
+      const userRes = await getProfile();
+      const updatedUser = userRes.data.data;
 
-    // Update localStorage
-    localStorage.setItem("user", JSON.stringify(updatedUser));
+      // Update localStorage
+      localStorage.setItem("user", JSON.stringify(updatedUser));
 
-    // Trigger event supaya RewardPage & Sidebar re-fetch
-    window.dispatchEvent(new Event("userUpdated"));
+      // Trigger event supaya RewardPage & Sidebar re-fetch
+      window.dispatchEvent(new Event("userUpdated"));
 
-    alert(`Berhasil! +${Math.round(berat * result.poin_per_kg)} poin ditambahkan!`);
-    resetImage();
-
-  } catch (error) {
-    console.error(error);
-    alert("Gagal menyimpan data");
-  }
-};
+      alert(
+        `Berhasil! +${Math.round(berat * result.poin_per_kg)} poin ditambahkan!`,
+      );
+      resetImage();
+    } catch (error) {
+      console.error(error);
+      alert("Gagal menyimpan data");
+    }
+  };
 
   const resetImage = () => {
     setFile(null);
@@ -70,12 +71,9 @@ export default function Scan() {
     <DashboardLayout>
       <div className="min-h-screen bg-green-50 p-4 md:p-6">
         <div className="max-w-6xl mx-auto">
-
           {/* HEADER */}
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-green-900">
-              Scan Sampah
-            </h1>
+            <h1 className="text-3xl font-bold text-green-900">Scan Sampah</h1>
             <p className="text-green-700 mt-2">
               Upload atau ambil gambar sampah untuk mendapatkan poin
             </p>
@@ -83,31 +81,48 @@ export default function Scan() {
 
           {/* MAIN GRID */}
           <div className="grid lg:grid-cols-2 gap-6">
-
             {/* LEFT SECTION */}
             <div className="bg-white rounded-3xl shadow-sm border border-green-100 p-6">
-
               {/* EMPTY STATE */}
               {!preview ? (
                 <div className="border-2 border-dashed border-green-300 rounded-2xl h-[400px] flex flex-col items-center justify-center text-center p-6">
                   <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center text-4xl mb-5">
                     📷
                   </div>
+
                   <h2 className="text-xl font-semibold text-green-900">
-                    Upload Gambar Sampah
+                    Foto atau Upload Gambar Sampah
                   </h2>
+
                   <p className="text-green-700 mt-2 max-w-sm">
-                    Pastikan gambar terlihat jelas agar AI dapat mendeteksi jenis sampah dengan akurat
+                    Ambil foto langsung dari kamera atau upload dari galeri agar
+                    AI dapat mendeteksi jenis sampah dengan akurat
                   </p>
-                  <label className="mt-6 cursor-pointer bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-2xl transition font-medium">
-                    Pilih Gambar
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={handleUpload}
-                    />
-                  </label>
+
+                  <div className="flex flex-col sm:flex-row gap-3 mt-6 w-full max-w-md">
+                    {/* Kamera */}
+                    <label className="cursor-pointer flex-1 bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-2xl transition font-medium text-center">
+                      Ambil Foto
+                      <input
+                        type="file"
+                        accept="image/*"
+                        capture="environment"
+                        className="hidden"
+                        onChange={handleUpload}
+                      />
+                    </label>
+
+                    {/* Upload */}
+                    <label className="cursor-pointer flex-1 border border-green-300 bg-white hover:bg-green-50 text-green-700 px-6 py-3 rounded-2xl transition font-medium text-center">
+                      Upload
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleUpload}
+                      />
+                    </label>
+                  </div>
                 </div>
               ) : (
                 <div>
@@ -142,7 +157,6 @@ export default function Scan() {
 
             {/* RIGHT SECTION */}
             <div className="space-y-6">
-
               {/* RESULT CARD */}
               <div className="bg-white rounded-3xl shadow-sm border border-green-100 p-6 min-h-[300px]">
                 <div className="flex items-center justify-between mb-5">
@@ -175,7 +189,6 @@ export default function Scan() {
                 {/* RESULT */}
                 {result && (
                   <div className="space-y-4">
-
                     {/* JENIS SAMPAH */}
                     <div className="bg-green-50 rounded-2xl p-4">
                       <p className="text-sm text-green-700">Jenis Sampah</p>
@@ -238,12 +251,15 @@ export default function Scan() {
 
               {/* TIPS */}
               <div className="bg-green-100 rounded-3xl p-6 border border-green-200">
-                <h2 className="font-semibold text-green-900 mb-3">
-                  Tips Scan
-                </h2>
+                <h2 className="font-semibold text-green-900 mb-3">Tips Scan</h2>
                 <ul className="space-y-2 text-green-800 text-sm">
-                  <li>• Pastikan foto hanya berisi <strong>satu jenis sampah</strong></li>
-                  <li>• Hindari mencampur beberapa jenis sampah dalam satu foto</li>
+                  <li>
+                    • Pastikan foto hanya berisi{" "}
+                    <strong>satu jenis sampah</strong>
+                  </li>
+                  <li>
+                    • Hindari mencampur beberapa jenis sampah dalam satu foto
+                  </li>
                   <li>• Pastikan objek terlihat jelas dan tidak blur</li>
                   <li>• Gunakan pencahayaan yang cukup</li>
                   <li>• Fokuskan kamera pada objek utama</li>
