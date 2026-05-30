@@ -14,6 +14,7 @@ import {
   ClipboardList,
   Recycle,
   Users,
+  Trophy,
 } from "lucide-react";
 
 import { useEffect, useState } from "react";
@@ -59,11 +60,10 @@ export default function Sidebar({ open, setOpen }) {
     <Link
       to={to}
       onClick={() => setOpen(false)}
-      className={`flex items-center gap-3 px-3 py-3 rounded-xl transition ${
-        pathname === to
+      className={`flex items-center gap-3 px-3 py-3 rounded-xl transition ${pathname === to
           ? "bg-green-600 text-white"
           : "hover:bg-green-700 text-white/90"
-      }`}
+        }`}
     >
       {icon}
       <span>{children}</span>
@@ -82,9 +82,8 @@ export default function Sidebar({ open, setOpen }) {
 
       {/* SIDEBAR */}
       <div
-        className={`fixed top-0 left-0 z-50 h-full w-64 bg-green-900 text-white p-5 transform transition-transform duration-300 flex flex-col ${
-          open ? "translate-x-0" : "-translate-x-full md:translate-x-0"
-        }`}
+        className={`fixed top-0 left-0 z-50 h-full w-64 bg-green-900 text-white p-5 transform transition-transform duration-300 flex flex-col ${open ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+          }`}
       >
         {/* TOP SECTION */}
         <div>
@@ -114,6 +113,10 @@ export default function Sidebar({ open, setOpen }) {
               {/* DIUBAH: Riwayat Scan → Riwayat */}
               <Item to="/history" icon={<History size={18} />}>
                 Riwayat
+              </Item>
+
+              <Item to="/leaderboard" icon={<Trophy size={18} />}>
+                Leaderboard
               </Item>
             </div>
 

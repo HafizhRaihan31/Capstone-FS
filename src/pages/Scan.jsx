@@ -33,7 +33,22 @@ export default function Scan() {
     }
   };
 
+  const handleBeratChange = (e) => {
+    const value = e.target.value;
+    if (value > 100) {
+      alert("Berat maksimal 100 kg per transaksi");
+      setBerat(100);
+      return;
+    }
+    setBerat(value);
+  };
+
   const handleSave = async () => {
+    if (parseFloat(berat) > 100) {
+      alert("Berat maksimal 100 kg per transaksi");
+      return;
+    }
+
     try {
       await saveScan({
         klasifikasi_id: result.klasifikasi_id,
@@ -215,19 +230,21 @@ export default function Scan() {
 
                     {/* INPUT BERAT */}
                     <div className="bg-white border border-green-100 rounded-2xl p-4">
-                      <p className="text-sm text-green-700 mb-2">
-                        Berat Sampah (kg)
-                      </p>
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-sm text-green-700">Berat Sampah (kg)</p>
+                        <p className="text-xs text-gray-400">Maks. 100 kg</p>
+                      </div>
                       <input
                         type="number"
                         min="0.1"
+                        max="100"
                         step="0.1"
                         value={berat}
-                        onChange={(e) => setBerat(e.target.value)}
+                        onChange={handleBeratChange}
                         placeholder="Contoh: 1.5"
                         className="w-full border border-green-200 rounded-xl px-4 py-2 text-green-900 focus:outline-none focus:ring-2 focus:ring-green-400"
                       />
-                      {berat > 0 && (
+                      {berat > 0 && berat <= 100 && (
                         <p className="text-sm text-green-600 mt-2">
                           Estimasi poin:{" "}
                           <strong>
@@ -235,12 +252,17 @@ export default function Scan() {
                           </strong>
                         </p>
                       )}
+                      {berat > 100 && (
+                        <p className="text-sm text-red-500 mt-2">
+                          ⚠️ Berat melebihi batas maksimal 100 kg
+                        </p>
+                      )}
                     </div>
 
                     {/* TOMBOL SIMPAN */}
                     <button
                       onClick={handleSave}
-                      disabled={!berat || berat <= 0}
+                      disabled={!berat || berat <= 0 || berat > 100}
                       className="w-full bg-green-500 hover:bg-green-600 disabled:bg-green-300 transition text-white py-3 rounded-2xl font-medium mt-2"
                     >
                       Simpan & Dapatkan Poin

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import DashboardLayout from "../layouts/DashboardLayout";
-import { Pencil, Trash2, Plus } from "lucide-react";
+import { Pencil, Trash2, Plus, Loader2 } from "lucide-react";
 import {
   getRewards,
   createReward,
@@ -20,6 +20,10 @@ export default function RewardPage() {
   // MODAL STATE
   const [showModal, setShowModal] = useState(false);
 
+  // KONFIRMASI TUKAR STATE
+  const [showKonfirmasi, setShowKonfirmasi] = useState(false);
+  const [selectedReward, setSelectedReward] = useState(null);
+
   // EDIT STATE
   const [isEdit, setIsEdit] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
@@ -27,6 +31,10 @@ export default function RewardPage() {
   // IMAGE STATE
   const [image, setImage] = useState(null);
   const [preview, setPreview] = useState(null);
+
+  // LOADING STATE
+  const [loadingTukar, setLoadingTukar] = useState(null);
+  const [loadingForm, setLoadingForm] = useState(false);
 
   // FORM STATE
   const [formData, setFormData] = useState({
@@ -36,18 +44,13 @@ export default function RewardPage() {
     stock: "",
   });
 
-  // FETCH USER - listen perubahan dari halaman lain
+  // FETCH USER
   useEffect(() => {
     const loadUser = () => {
       const storedUser = JSON.parse(localStorage.getItem("user"));
-      if (storedUser) {
-        setUser(storedUser);
-      }
+      if (storedUser) setUser(storedUser);
     };
-
     loadUser();
-
-    // Listen event dari Scan.jsx setelah dapat poin
     window.addEventListener("userUpdated", loadUser);
     return () => window.removeEventListener("userUpdated", loadUser);
   }, []);
@@ -68,10 +71,7 @@ export default function RewardPage() {
 
   // HANDLE CHANGE
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   // HANDLE IMAGE
@@ -83,18 +83,49 @@ export default function RewardPage() {
     }
   };
 
+  // BUKA MODAL KONFIRMASI
+  const handleKlikTukar = (item) => {
+    setSelectedReward(item);
+    setShowKonfirmasi(true);
+  };
+
+  // KONFIRMASI TUKAR REWARD
+  const handleTukarReward = async () => {
+    if (!selectedReward || loadingTukar) return;
+    setLoadingTukar(selectedReward.id);
+    setShowKonfirmasi(false);
+    try {
+      const response = await tukarReward(selectedReward.id);
+      alert(response.message);
+
+      const updatedUser = {
+        ...user,
+        total_points: user.total_points - response.data.points_used,
+      };
+      setUser(updatedUser);
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+      await fetchRewards();
+
+    } catch (error) {
+      console.error(error);
+      alert(error.response?.data?.message || "Gagal tukar reward");
+    } finally {
+      setLoadingTukar(null);
+      setSelectedReward(null);
+    }
+  };
+
   // CREATE / UPDATE REWARD
   const handleCreateReward = async (e) => {
     e.preventDefault();
+    setLoadingForm(true);
     try {
       const data = new FormData();
       data.append("reward_name", formData.reward_name);
       data.append("description", formData.description);
       data.append("point_cost", formData.point_cost);
       data.append("stock", formData.stock);
-      if (image) {
-        data.append("reward_image", image);
-      }
+      if (image) data.append("reward_image", image);
 
       if (isEdit) {
         await updateReward(selectedId, data);
@@ -105,7 +136,6 @@ export default function RewardPage() {
       }
 
       await fetchRewards();
-
       setFormData({ reward_name: "", description: "", point_cost: "", stock: "" });
       setImage(null);
       setPreview(null);
@@ -116,29 +146,8 @@ export default function RewardPage() {
     } catch (error) {
       console.error(error);
       alert(error.response?.data?.message || "Gagal proses reward");
-    }
-  };
-
-  // TUKAR REWARD
-  const handleTukarReward = async (rewardId) => {
-    try {
-      const response = await tukarReward(rewardId);
-      alert(response.message);
-
-      // Update poin user di state & localStorage
-      const updatedUser = {
-        ...user,
-        total_points: user.total_points - response.data.points_used,
-      };
-      setUser(updatedUser);
-      localStorage.setItem("user", JSON.stringify(updatedUser));
-
-      // Refresh rewards
-      await fetchRewards();
-
-    } catch (error) {
-      console.error(error);
-      alert(error.response?.data?.message || "Gagal tukar reward");
+    } finally {
+      setLoadingForm(false);
     }
   };
 
@@ -182,8 +191,6 @@ export default function RewardPage() {
               <p className="text-green-700 mt-2">
                 Tukarkan poinmu dengan berbagai hadiah menarik!
               </p>
-
-              {/* REALTIME POINT */}
               <div className="mt-4 bg-green-100 inline-block px-4 py-2 rounded-lg">
                 <span className="font-semibold text-green-900">
                   Poin Kamu: {user?.total_points || 0}
@@ -191,7 +198,6 @@ export default function RewardPage() {
               </div>
             </div>
 
-            {/* ADMIN BUTTON */}
             {user?.role === "admin" && (
               <button
                 onClick={() => {
@@ -216,7 +222,6 @@ export default function RewardPage() {
                 key={item.id}
                 className="bg-white rounded-2xl shadow hover:shadow-lg transition overflow-hidden"
               >
-                {/* IMAGE */}
                 <img
                   src={
                     item.image_url
@@ -226,26 +231,28 @@ export default function RewardPage() {
                   alt={item.reward_name}
                   className="h-52 w-full object-cover"
                 />
-
-                {/* CONTENT */}
                 <div className="p-4">
-                  <h2 className="text-lg font-semibold text-green-900">
-                    {item.reward_name}
-                  </h2>
+                  <h2 className="text-lg font-semibold text-green-900">{item.reward_name}</h2>
                   <p className="text-sm text-gray-500 mt-1">{item.description}</p>
                   <p className="text-green-700 mt-3 font-medium">{item.point_cost} Poin</p>
                   <p className="text-sm text-gray-500 mt-1">Stock: {item.stock}</p>
 
-                  {/* USER BUTTON */}
                   {user?.role !== "admin" ? (
                     <button
-                      className="mt-4 w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded-xl transition"
-                      onClick={() => handleTukarReward(item.id)}
+                      disabled={loadingTukar === item.id}
+                      className="mt-4 w-full flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 disabled:bg-green-300 text-white py-2 rounded-xl transition"
+                      onClick={() => handleKlikTukar(item)}
                     >
-                      Tukar Poin
+                      {loadingTukar === item.id ? (
+                        <>
+                          <Loader2 size={16} className="animate-spin" />
+                          Memproses...
+                        </>
+                      ) : (
+                        "Tukar Poin"
+                      )}
                     </button>
                   ) : (
-                    // ADMIN BUTTON
                     <div className="mt-4 flex gap-3">
                       <button
                         onClick={() => handleEditReward(item)}
@@ -270,104 +277,99 @@ export default function RewardPage() {
         </div>
       </div>
 
-      {/* MODAL CREATE / UPDATE */}
+      {/* ── MODAL KONFIRMASI TUKAR ── */}
+      {showKonfirmasi && selectedReward && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl">
+            <h2 className="text-xl font-bold text-green-900 mb-2">
+              Konfirmasi Penukaran
+            </h2>
+            <p className="text-gray-600 mb-4">
+              Yakin ingin menukar poin dengan reward ini?
+            </p>
+
+            {/* DETAIL REWARD */}
+            <div className="bg-green-50 rounded-xl p-4 mb-6">
+              <p className="font-semibold text-green-900">{selectedReward.reward_name}</p>
+              <p className="text-sm text-gray-500 mt-1">{selectedReward.description}</p>
+              <div className="flex justify-between mt-3">
+                <span className="text-sm text-gray-500">Poin dibutuhkan</span>
+                <span className="font-bold text-red-500">-{selectedReward.point_cost}</span>
+              </div>
+              <div className="flex justify-between mt-1">
+                <span className="text-sm text-gray-500">Poin kamu</span>
+                <span className="font-bold text-green-600">{user?.total_points}</span>
+              </div>
+              <div className="flex justify-between mt-1 pt-2 border-t border-green-200">
+                <span className="text-sm text-gray-500">Sisa poin</span>
+                <span className="font-bold text-green-900">
+                  {user?.total_points - selectedReward.point_cost}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowKonfirmasi(false);
+                  setSelectedReward(null);
+                }}
+                className="flex-1 px-4 py-2 rounded-xl border border-gray-300 hover:bg-gray-100 transition font-medium"
+              >
+                Batal
+              </button>
+              <button
+                onClick={handleTukarReward}
+                className="flex-1 px-4 py-2 rounded-xl bg-green-500 hover:bg-green-600 text-white transition font-medium"
+              >
+                Ya, Tukar!
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── MODAL CREATE / UPDATE ── */}
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl w-full max-w-lg p-6">
-
-            {/* HEADER */}
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold text-green-900">
                 {isEdit ? "Update Reward" : "Tambah Reward"}
               </h2>
-              <button
-                onClick={() => setShowModal(false)}
-                className="text-gray-500 hover:text-red-500"
-              >
+              <button onClick={() => setShowModal(false)} className="text-gray-500 hover:text-red-500">
                 ✕
               </button>
             </div>
 
-            {/* FORM */}
             <form onSubmit={handleCreateReward} className="space-y-4">
-
-              {/* NAME */}
               <div>
                 <label className="block text-sm mb-2">Nama Reward</label>
-                <input
-                  type="text"
-                  name="reward_name"
-                  value={formData.reward_name}
-                  onChange={handleChange}
-                  className="w-full border rounded-xl px-4 py-3"
-                  required
-                />
+                <input type="text" name="reward_name" value={formData.reward_name} onChange={handleChange} className="w-full border rounded-xl px-4 py-3" required />
               </div>
-
-              {/* DESCRIPTION */}
               <div>
                 <label className="block text-sm mb-2">Deskripsi</label>
-                <textarea
-                  name="description"
-                  value={formData.description}
-                  onChange={handleChange}
-                  className="w-full border rounded-xl px-4 py-3"
-                  rows="3"
-                />
+                <textarea name="description" value={formData.description} onChange={handleChange} className="w-full border rounded-xl px-4 py-3" rows="3" />
               </div>
-
-              {/* IMAGE */}
               <div>
                 <label className="block text-sm mb-2">Upload Gambar</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="w-full border rounded-xl px-4 py-3"
-                />
+                <input type="file" accept="image/*" onChange={handleImageChange} className="w-full border rounded-xl px-4 py-3" />
               </div>
-
-              {/* PREVIEW */}
-              {preview && (
-                <img
-                  src={preview}
-                  alt="Preview"
-                  className="w-full h-52 object-cover rounded-xl"
-                />
-              )}
-
-              {/* POINT */}
+              {preview && <img src={preview} alt="Preview" className="w-full h-52 object-cover rounded-xl" />}
               <div>
                 <label className="block text-sm mb-2">Point Cost</label>
-                <input
-                  type="number"
-                  name="point_cost"
-                  value={formData.point_cost}
-                  onChange={handleChange}
-                  className="w-full border rounded-xl px-4 py-3"
-                  required
-                />
+                <input type="number" name="point_cost" value={formData.point_cost} onChange={handleChange} className="w-full border rounded-xl px-4 py-3" required />
               </div>
-
-              {/* STOCK */}
               <div>
                 <label className="block text-sm mb-2">Stock</label>
-                <input
-                  type="number"
-                  name="stock"
-                  value={formData.stock}
-                  onChange={handleChange}
-                  className="w-full border rounded-xl px-4 py-3"
-                  required
-                />
+                <input type="number" name="stock" value={formData.stock} onChange={handleChange} className="w-full border rounded-xl px-4 py-3" required />
               </div>
-
-              {/* BUTTON */}
-              <button
-                type="submit"
-                className="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl font-semibold transition"
-              >
-                {isEdit ? "Update Reward" : "Simpan Reward"}
+              <button type="submit" disabled={loadingForm} className="w-full flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 disabled:bg-green-300 text-white py-3 rounded-xl font-semibold transition">
+                {loadingForm ? (
+                  <><Loader2 size={16} className="animate-spin" />Menyimpan...</>
+                ) : (
+                  isEdit ? "Update Reward" : "Simpan Reward"
+                )}
               </button>
             </form>
           </div>
