@@ -2,19 +2,15 @@ import { useEffect, useState } from "react";
 import DashboardLayout from "../layouts/DashboardLayout";
 import { getHistory, getRewardHistory } from "../services/historyService";
 
-export default function History() {
-  // TAB STATE
-  const [activeTab, setActiveTab] = useState("scan");
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
-  // SCAN HISTORY STATE
+export default function History() {
+  const [activeTab, setActiveTab] = useState("scan");
   const [history, setHistory] = useState([]);
   const [loadingScan, setLoadingScan] = useState(true);
-
-  // REWARD HISTORY STATE
   const [rewardHistory, setRewardHistory] = useState([]);
   const [loadingReward, setLoadingReward] = useState(true);
 
-  // FETCH SCAN HISTORY
   useEffect(() => {
     const fetchHistory = async () => {
       try {
@@ -29,7 +25,6 @@ export default function History() {
     fetchHistory();
   }, []);
 
-  // FETCH REWARD HISTORY
   useEffect(() => {
     const fetchRewardHistory = async () => {
       try {
@@ -49,39 +44,27 @@ export default function History() {
       <div className="p-6">
         <div className="max-w-5xl mx-auto">
 
-          {/* HEADER */}
           <div className="mb-6">
             <h1 className="text-2xl font-bold text-green-900">Riwayat</h1>
-            <p className="text-green-700 mt-2">
-              Semua aktivitas poin dan penukaran reward kamu
-            </p>
+            <p className="text-green-700 mt-2">Semua aktivitas poin dan penukaran reward kamu</p>
           </div>
 
-          {/* TABS */}
           <div className="flex gap-2 mb-6">
             <button
               onClick={() => setActiveTab("scan")}
-              className={`px-5 py-2 rounded-xl font-medium transition ${
-                activeTab === "scan"
-                  ? "bg-green-500 text-white"
-                  : "bg-white border border-green-200 text-green-700 hover:bg-green-50"
-              }`}
+              className={`px-5 py-2 rounded-xl font-medium transition ${activeTab === "scan" ? "bg-green-500 text-white" : "bg-white border border-green-200 text-green-700 hover:bg-green-50"}`}
             >
-               Riwayat Scan
+              🗑️ Riwayat Scan
             </button>
             <button
               onClick={() => setActiveTab("reward")}
-              className={`px-5 py-2 rounded-xl font-medium transition ${
-                activeTab === "reward"
-                  ? "bg-green-500 text-white"
-                  : "bg-white border border-green-200 text-green-700 hover:bg-green-50"
-              }`}
+              className={`px-5 py-2 rounded-xl font-medium transition ${activeTab === "reward" ? "bg-green-500 text-white" : "bg-white border border-green-200 text-green-700 hover:bg-green-50"}`}
             >
-               Riwayat Tukar Reward
+              🎁 Riwayat Tukar Reward
             </button>
           </div>
 
-          {/* ── TAB SCAN ── */}
+          {/* TAB SCAN */}
           {activeTab === "scan" && (
             <div className="bg-white rounded-2xl shadow overflow-hidden">
               <div className="overflow-x-auto">
@@ -97,47 +80,21 @@ export default function History() {
                   </thead>
                   <tbody>
                     {loadingScan ? (
-                      <tr>
-                        <td colSpan="5" className="p-6 text-center text-gray-400">
-                          Loading...
-                        </td>
-                      </tr>
+                      <tr><td colSpan="5" className="p-6 text-center text-gray-400">Loading...</td></tr>
                     ) : history.length > 0 ? (
                       history.map((item) => (
                         <tr key={item.id} className="border-t hover:bg-green-50 transition">
-
-                          {/* KATEGORI */}
-                          <td className="p-4 font-medium text-green-900">
-                            {item.kategori}
-                          </td>
-
-                          {/* BERAT */}
+                          <td className="p-4 font-medium text-green-900">{item.kategori}</td>
                           <td className="p-4 text-gray-600">{item.berat} Kg</td>
-
-                          {/* POIN */}
-                          <td className="p-4 text-green-600 font-semibold">
-                            +{item.poin_didapat}
-                          </td>
-
-                          {/* STATUS */}
+                          <td className="p-4 text-green-600 font-semibold">+{item.poin_didapat}</td>
                           <td className="p-4">
-                            <span className="px-3 py-1 rounded-full text-sm bg-green-100 text-green-700">
-                              {item.status}
-                            </span>
+                            <span className="px-3 py-1 rounded-full text-sm bg-green-100 text-green-700">{item.status}</span>
                           </td>
-
-                          {/* TANGGAL */}
-                          <td className="p-4 text-gray-500">
-                            {new Date(item.created_at).toLocaleDateString("id-ID")}
-                          </td>
+                          <td className="p-4 text-gray-500">{new Date(item.created_at).toLocaleDateString("id-ID")}</td>
                         </tr>
                       ))
                     ) : (
-                      <tr>
-                        <td colSpan="5" className="p-6 text-center text-gray-400">
-                          Belum ada riwayat scan sampah
-                        </td>
-                      </tr>
+                      <tr><td colSpan="5" className="p-6 text-center text-gray-400">Belum ada riwayat scan sampah</td></tr>
                     )}
                   </tbody>
                 </table>
@@ -145,7 +102,7 @@ export default function History() {
             </div>
           )}
 
-          {/* ── TAB REWARD ── */}
+          {/* TAB REWARD */}
           {activeTab === "reward" && (
             <div className="bg-white rounded-2xl shadow overflow-hidden">
               <div className="overflow-x-auto">
@@ -160,55 +117,31 @@ export default function History() {
                   </thead>
                   <tbody>
                     {loadingReward ? (
-                      <tr>
-                        <td colSpan="4" className="p-6 text-center text-gray-400">
-                          Loading...
-                        </td>
-                      </tr>
+                      <tr><td colSpan="4" className="p-6 text-center text-gray-400">Loading...</td></tr>
                     ) : rewardHistory.length > 0 ? (
                       rewardHistory.map((item) => (
                         <tr key={item.id} className="border-t hover:bg-green-50 transition">
-
-                          {/* REWARD */}
                           <td className="p-4">
                             <div className="flex items-center gap-3">
                               {item.image_url && (
                                 <img
-                                  src={`http://localhost:5000${item.image_url}`}
+                                  src={`${API_URL}${item.image_url}`} // ← FIX
                                   alt={item.reward_name}
                                   className="w-10 h-10 rounded-lg object-cover"
                                 />
                               )}
-                              <span className="font-medium text-green-900">
-                                {item.reward_name}
-                              </span>
+                              <span className="font-medium text-green-900">{item.reward_name}</span>
                             </div>
                           </td>
-
-                          {/* POIN DIGUNAKAN */}
-                          <td className="p-4 text-red-500 font-semibold">
-                            -{item.points_used}
-                          </td>
-
-                          {/* STATUS */}
+                          <td className="p-4 text-red-500 font-semibold">-{item.points_used}</td>
                           <td className="p-4">
-                            <span className="px-3 py-1 rounded-full text-sm bg-green-100 text-green-700">
-                              {item.status}
-                            </span>
+                            <span className="px-3 py-1 rounded-full text-sm bg-green-100 text-green-700">{item.status}</span>
                           </td>
-
-                          {/* TANGGAL */}
-                          <td className="p-4 text-gray-500">
-                            {new Date(item.redeemed_at).toLocaleDateString("id-ID")}
-                          </td>
+                          <td className="p-4 text-gray-500">{new Date(item.redeemed_at).toLocaleDateString("id-ID")}</td>
                         </tr>
                       ))
                     ) : (
-                      <tr>
-                        <td colSpan="4" className="p-6 text-center text-gray-400">
-                          Belum ada riwayat penukaran reward
-                        </td>
-                      </tr>
+                      <tr><td colSpan="4" className="p-6 text-center text-gray-400">Belum ada riwayat penukaran reward</td></tr>
                     )}
                   </tbody>
                 </table>

@@ -9,6 +9,8 @@ import {
   updateReward,
 } from "../services/rewardService";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
 export default function RewardPage() {
 
   // USER STATE
@@ -175,7 +177,7 @@ export default function RewardPage() {
       point_cost: item.point_cost,
       stock: item.stock,
     });
-    setPreview(`http://localhost:5000${item.image_url}`);
+    setPreview(`${API_URL}${item.image_url}`); // ← FIX
     setShowModal(true);
   };
 
@@ -225,7 +227,7 @@ export default function RewardPage() {
                 <img
                   src={
                     item.image_url
-                      ? `http://localhost:5000${item.image_url}`
+                      ? `${API_URL}${item.image_url}` // ← FIX
                       : "/src/assets/img/product.png"
                   }
                   alt={item.reward_name}
@@ -287,8 +289,6 @@ export default function RewardPage() {
             <p className="text-gray-600 mb-4">
               Yakin ingin menukar poin dengan reward ini?
             </p>
-
-            {/* DETAIL REWARD */}
             <div className="bg-green-50 rounded-xl p-4 mb-6">
               <p className="font-semibold text-green-900">{selectedReward.reward_name}</p>
               <p className="text-sm text-gray-500 mt-1">{selectedReward.description}</p>
@@ -307,13 +307,9 @@ export default function RewardPage() {
                 </span>
               </div>
             </div>
-
             <div className="flex gap-3">
               <button
-                onClick={() => {
-                  setShowKonfirmasi(false);
-                  setSelectedReward(null);
-                }}
+                onClick={() => { setShowKonfirmasi(false); setSelectedReward(null); }}
                 className="flex-1 px-4 py-2 rounded-xl border border-gray-300 hover:bg-gray-100 transition font-medium"
               >
                 Batal
@@ -337,11 +333,8 @@ export default function RewardPage() {
               <h2 className="text-xl font-bold text-green-900">
                 {isEdit ? "Update Reward" : "Tambah Reward"}
               </h2>
-              <button onClick={() => setShowModal(false)} className="text-gray-500 hover:text-red-500">
-                ✕
-              </button>
+              <button onClick={() => setShowModal(false)} className="text-gray-500 hover:text-red-500">✕</button>
             </div>
-
             <form onSubmit={handleCreateReward} className="space-y-4">
               <div>
                 <label className="block text-sm mb-2">Nama Reward</label>
@@ -365,11 +358,7 @@ export default function RewardPage() {
                 <input type="number" name="stock" value={formData.stock} onChange={handleChange} className="w-full border rounded-xl px-4 py-3" required />
               </div>
               <button type="submit" disabled={loadingForm} className="w-full flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 disabled:bg-green-300 text-white py-3 rounded-xl font-semibold transition">
-                {loadingForm ? (
-                  <><Loader2 size={16} className="animate-spin" />Menyimpan...</>
-                ) : (
-                  isEdit ? "Update Reward" : "Simpan Reward"
-                )}
+                {loadingForm ? (<><Loader2 size={16} className="animate-spin" />Menyimpan...</>) : (isEdit ? "Update Reward" : "Simpan Reward")}
               </button>
             </form>
           </div>

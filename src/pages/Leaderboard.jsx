@@ -7,23 +7,26 @@ export default function Leaderboard() {
   const [myRank, setMyRank] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Fetch leaderboard
-        const res = await api.get("/leaderboard");
-        setLeaderboard(res.data.data);
+  const fetchData = async () => {
+    try {
+      const res = await api.get("/leaderboard");
+      setLeaderboard(res.data.data);
 
-        // Fetch posisi user sendiri
-        const rankRes = await api.get("/leaderboard/me");
-        setMyRank(rankRes.data.data);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    };
+      const rankRes = await api.get("/leaderboard/me");
+      setMyRank(rankRes.data.data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchData();
+
+    // Re-fetch setiap kali user dapat poin baru
+    window.addEventListener("userUpdated", fetchData);
+    return () => window.removeEventListener("userUpdated", fetchData);
   }, []);
 
   // Medal untuk top 3
@@ -92,16 +95,12 @@ export default function Leaderboard() {
 
                     {/* NAME */}
                     <div className="flex-1">
-                      <p className="font-semibold text-green-900">
-                        {item.full_name}
-                      </p>
+                      <p className="font-semibold text-green-900">{item.full_name}</p>
                     </div>
 
                     {/* POINTS */}
                     <div className="text-right">
-                      <p className="font-bold text-green-600 text-lg">
-                        {item.total_points}
-                      </p>
+                      <p className="font-bold text-green-600 text-lg">{item.total_points}</p>
                       <p className="text-xs text-gray-400">poin</p>
                     </div>
                   </div>
