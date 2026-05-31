@@ -60,10 +60,11 @@ export default function Sidebar({ open, setOpen }) {
     <Link
       to={to}
       onClick={() => setOpen(false)}
-      className={`flex items-center gap-3 px-3 py-3 rounded-xl transition ${pathname === to
+      className={`flex items-center gap-3 px-3 py-3 rounded-xl transition ${
+        pathname === to
           ? "bg-green-600 text-white"
           : "hover:bg-green-700 text-white/90"
-        }`}
+      }`}
     >
       {icon}
       <span>{children}</span>
@@ -82,16 +83,17 @@ export default function Sidebar({ open, setOpen }) {
 
       {/* SIDEBAR */}
       <div
-        className={`fixed top-0 left-0 z-50 h-full w-64 bg-green-900 text-white p-5 transform transition-transform duration-300 flex flex-col ${open ? "translate-x-0" : "-translate-x-full md:translate-x-0"
-          }`}
+        className={`fixed top-0 left-0 z-50 h-full w-64 bg-green-900 text-white p-5 transform transition-transform duration-300 flex flex-col ${
+          open ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+        }`}
       >
-        {/* TOP SECTION */}
-        <div>
-
-          {/* LOGO */}
+        {/* TOP SECTION - Logo (selalu terlihat, tidak ikut scroll) */}
+        <div className="flex-shrink-0">
           <h1 className="text-2xl font-bold mb-8">Sortir.in</h1>
+        </div>
 
-          {/* MENU */}
+        {/* MIDDLE SECTION - Menu (bisa scroll jika konten melebihi layar) */}
+        <div className="flex-1 overflow-y-auto min-h-0 pr-1 scrollbar-thin scrollbar-thumb-green-700 scrollbar-track-transparent">
           <div className="space-y-2">
 
             {/* MAIN */}
@@ -110,7 +112,6 @@ export default function Sidebar({ open, setOpen }) {
                 Tukar Poin
               </Item>
 
-              {/* DIUBAH: Riwayat Scan → Riwayat */}
               <Item to="/history" icon={<History size={18} />}>
                 Riwayat
               </Item>
@@ -140,7 +141,7 @@ export default function Sidebar({ open, setOpen }) {
             )}
 
             {/* ACCOUNT */}
-            <div className="pt-6">
+            <div className="pt-6 pb-2">
               <p className="text-sm opacity-70 mb-2">Account</p>
 
               <Item to="/profile" icon={<User size={18} />}>
@@ -150,8 +151,8 @@ export default function Sidebar({ open, setOpen }) {
           </div>
         </div>
 
-        {/* BOTTOM SECTION */}
-        <div className="mt-auto pt-6 border-t border-white/20">
+        {/* BOTTOM SECTION - User info & Logout (selalu terlihat di bawah) */}
+        <div className="flex-shrink-0 pt-4 border-t border-white/20">
 
           {/* USER INFO */}
           <div className="flex items-center gap-3 mb-4">

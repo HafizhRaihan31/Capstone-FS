@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { AlertCircle, CheckCircle } from "lucide-react";
 import { registerUser } from "../services/authService";
+import loginImage from "../assets/img/login.png";
 
 export default function Register() {
   const navigate = useNavigate();

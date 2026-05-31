@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { loginUser } from "../services/authService";
 import { AlertCircle } from "lucide-react";
+import loginImage from "../assets/img/login.png";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -50,7 +51,7 @@ export default function Login() {
       {/* LEFT IMAGE */}
       <div className="hidden md:block w-1/2 bg-green-100">
         <img
-          src="/src/assets/img/login.png"
+          src={loginImage}
           alt="Login"
           className="w-full h-full object-cover"
         />
