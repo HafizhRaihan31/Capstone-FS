@@ -69,7 +69,7 @@ export default function Register() {
       {/* LEFT IMAGE */}
       <div className="hidden md:block w-1/2 bg-green-100">
         <img
-          src="/src/assets/img/login.png"
+          src={loginImage}
           alt="Register"
           className="w-full h-full object-cover"
         />
