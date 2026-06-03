@@ -19,20 +19,6 @@
 
 ---
 
-## ⚙️ Tech Stack — Backend
-
-| No | Teknologi | Keterangan |
-|---|---|---|
-| 01 | **Node.js** | Runtime JavaScript untuk membangun server yang cepat dan efisien |
-| 02 | **Express.js** | Framework backend untuk membangun REST API yang terstruktur |
-| 03 | **PostgreSQL** | Database relasional untuk menyimpan data user, transaksi, dan reward |
-| 04 | **JWT (JSON Web Token)** | Sistem autentikasi yang aman untuk melindungi endpoint API |
-| 05 | **Multer** | Middleware untuk menangani upload gambar sampah dari user |
-| 06 | **Axios** | HTTP client untuk menghubungkan backend dengan layanan AI di Railway |
-| 07 | **PM2** | Process manager untuk menjaga backend tetap berjalan di VPS |
-
----
-
 ## 📦 Instalasi & Menjalankan Project
 
 ### Prasyarat
