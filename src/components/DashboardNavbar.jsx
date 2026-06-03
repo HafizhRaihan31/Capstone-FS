@@ -2,29 +2,34 @@ import { Link, useLocation } from "react-router-dom";
 import { getProfile } from "../services/userService";
 import { useEffect, useState } from "react";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
 export default function DashboardNavbar({ setOpen }) {
   const [profile, setProfile] = useState(null);
   const location = useLocation();
 
+  const fetchProfile = async () => {
+    try {
+      const response = await getProfile();
+      setProfile(response.data.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const response = await getProfile();
-        setProfile(response.data.data);
-      } catch (error) {
-        console.error(error);
-      }
-    };
     fetchProfile();
+
+    // Dengarkan event updateProfile dari Profile.jsx
+    window.addEventListener("updateProfile", fetchProfile);
+    return () => window.removeEventListener("updateProfile", fetchProfile);
   }, []);
 
-  // Mengambil inisial nama untuk avatar (Contoh: "John Doe" -> "JD")
   const getInitial = (name) => {
     if (!name) return "?";
     return name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
   };
 
-  // Helper untuk mendeteksi menu yang sedang aktif
   const isActive = (path) => location.pathname === path;
 
   return (
@@ -42,21 +47,21 @@ export default function DashboardNavbar({ setOpen }) {
 
       {/* Navigation Links (Desktop) */}
       <div className="hidden md:flex items-center gap-2">
-        <Link 
-          to="/scan" 
+        <Link
+          to="/scan"
           className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
-            isActive("/scan") 
-              ? "bg-white text-green-700 shadow-sm" 
+            isActive("/scan")
+              ? "bg-white text-green-700 shadow-sm"
               : "hover:bg-white/10 hover:text-white text-green-50"
           }`}
         >
           Scan Sampah
         </Link>
-        <Link 
-          to="/reward" 
+        <Link
+          to="/reward"
           className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
-            isActive("/reward") 
-              ? "bg-white text-green-700 shadow-sm" 
+            isActive("/reward")
+              ? "bg-white text-green-700 shadow-sm"
               : "hover:bg-white/10 hover:text-white text-green-50"
           }`}
         >
@@ -69,8 +74,19 @@ export default function DashboardNavbar({ setOpen }) {
         <span className="text-sm font-medium tracking-wide hidden sm:inline-block">
           {profile?.full_name || "Loading..."}
         </span>
-        <div className="w-8 h-8 rounded-full bg-white text-green-700 font-bold text-xs flex items-center justify-center shadow-sm select-none border border-green-100">
-          {getInitial(profile?.full_name)}
+
+        {/* Tampilkan foto jika ada, inisial jika tidak */}
+        <div className="w-8 h-8 rounded-full overflow-hidden bg-white text-green-700 font-bold text-xs flex items-center justify-center shadow-sm select-none border border-green-100">
+          {profile?.profile_image ? (
+            <img
+              src={`${API_URL}${profile.profile_image}`}
+              alt={profile.full_name}
+              className="w-full h-full object-cover"
+              onError={(e) => { e.target.style.display = "none"; }}
+            />
+          ) : (
+            getInitial(profile?.full_name)
+          )}
         </div>
       </div>
     </nav>
